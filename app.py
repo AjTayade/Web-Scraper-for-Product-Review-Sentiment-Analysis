@@ -7,7 +7,7 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sentiment import SentimentAnalyzer
 
-# Import the new, unified smart scraper
+# Import only the new, unified smart scraper
 from smart_scraper import SmartScraper
 
 app = Flask(__name__)
@@ -31,8 +31,10 @@ def analyze_reviews():
             flash('Please select a retailer and enter a valid URL', 'error')
             return render_template('index.html')
 
+        # --- THIS IS THE CORRECTED LOGIC ---
+        # The old validation check is removed. We now directly call the scraper.
+        
         flash(f'Using Smart Scraper for {scraper_choice.capitalize()}... Please wait.', 'info')
-        # The smart scraper is called for any choice
         reviews = scraper.get_reviews(product_url)
         
         if not reviews:
