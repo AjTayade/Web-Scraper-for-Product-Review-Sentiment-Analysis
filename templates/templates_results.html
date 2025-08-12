@@ -1,0 +1,243 @@
+{% extends "base.html" %}
+
+{% block title %}Sentiment Analysis Results{% endblock %}
+
+{% block content %}
+<div class="row">
+    <!-- Results Header -->
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2 class="text-primary">
+                <i class="fas fa-chart-line me-2"></i>
+                Sentiment Analysis Results
+            </h2>
+            <a href="{{ url_for('index') }}" class="btn btn-outline-primary">
+                <i class="fas fa-arrow-left me-2"></i>
+                Analyze Another URL
+            </a>
+        </div>
+    </div>
+
+    <!-- Summary Cards -->
+    <div class="col-12 mb-4">
+        <div class="row">
+            <div class="col-md-3">
+                <div class="card text-white bg-info">
+                    <div class="card-body text-center">
+                        <i class="fas fa-list-ol fa-2x mb-2"></i>
+                        <h4>{{ total_reviews }}</h4>
+                        <p class="mb-0">Total Reviews</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-success">
+                    <div class="card-body text-center">
+                        <i class="fas fa-smile fa-2x mb-2"></i>
+                        <h4>{{ sentiment_counts.get('Positive', 0) }}</h4>
+                        <p class="mb-0">Positive</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-danger">
+                    <div class="card-body text-center">
+                        <i class="fas fa-frown fa-2x mb-2"></i>
+                        <h4>{{ sentiment_counts.get('Negative', 0) }}</h4>
+                        <p class="mb-0">Negative</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="card text-white bg-secondary">
+                    <div class="card-body text-center">
+                        <i class="fas fa-meh fa-2x mb-2"></i>
+                        <h4>{{ sentiment_counts.get('Neutral', 0) }}</h4>
+                        <p class="mb-0">Neutral</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Sentiment Chart -->
+    {% if chart %}
+    <div class="col-lg-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-chart-bar me-2"></i>
+                    Sentiment Distribution
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="data:image/png;base64,{{ chart }}" 
+                     class="img-fluid" 
+                     alt="Sentiment Distribution Chart"
+                     style="max-height: 400px;">
+            </div>
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Sentiment Percentages -->
+    <div class="col-lg-4 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-percentage me-2"></i>
+                    Breakdown
+                </h5>
+            </div>
+            <div class="card-body">
+                {% set total = sentiment_counts.get('Positive', 0) + sentiment_counts.get('Negative', 0) + sentiment_counts.get('Neutral', 0) %}
+                {% if total > 0 %}
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-success fw-bold">Positive</span>
+                            <span>{{ "%.1f"|format((sentiment_counts.get('Positive', 0) / total * 100)) }}%</span>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-success" style="width: {{ (sentiment_counts.get('Positive', 0) / total * 100) }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-danger fw-bold">Negative</span>
+                            <span>{{ "%.1f"|format((sentiment_counts.get('Negative', 0) / total * 100)) }}%</span>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-danger" style="width: {{ (sentiment_counts.get('Negative', 0) / total * 100) }}%"></div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span class="text-secondary fw-bold">Neutral</span>
+                            <span>{{ "%.1f"|format((sentiment_counts.get('Neutral', 0) / total * 100)) }}%</span>
+                        </div>
+                        <div class="progress mb-2">
+                            <div class="progress-bar bg-secondary" style="width: {{ (sentiment_counts.get('Neutral', 0) / total * 100) }}%"></div>
+                        </div>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Sample Reviews by Sentiment -->
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-comments me-2"></i>
+                    Sample Reviews by Sentiment
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- Positive Reviews -->
+                    <div class="col-lg-4 mb-3">
+                        <h6 class="text-success">
+                            <i class="fas fa-thumbs-up me-2"></i>
+                            Positive Reviews
+                        </h6>
+                        {% for review in grouped_reviews.get('Positive', [])[:3] %}
+                            <div class="card mb-2 border-success">
+                                <div class="card-body p-3">
+                                    <p class="card-text small">{{ review.text[:150] }}{% if review.text|length > 150 %}...{% endif %}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ review.author }}</small>
+                                        <span class="badge bg-success">{{ review.polarity }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Neutral Reviews -->
+                    <div class="col-lg-4 mb-3">
+                        <h6 class="text-secondary">
+                            <i class="fas fa-minus me-2"></i>
+                            Neutral Reviews
+                        </h6>
+                        {% for review in grouped_reviews.get('Neutral', [])[:3] %}
+                            <div class="card mb-2 border-secondary">
+                                <div class="card-body p-3">
+                                    <p class="card-text small">{{ review.text[:150] }}{% if review.text|length > 150 %}...{% endif %}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ review.author }}</small>
+                                        <span class="badge bg-secondary">{{ review.polarity }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Negative Reviews -->
+                    <div class="col-lg-4 mb-3">
+                        <h6 class="text-danger">
+                            <i class="fas fa-thumbs-down me-2"></i>
+                            Negative Reviews
+                        </h6>
+                        {% for review in grouped_reviews.get('Negative', [])[:3] %}
+                            <div class="card mb-2 border-danger">
+                                <div class="card-body p-3">
+                                    <p class="card-text small">{{ review.text[:150] }}{% if review.text|length > 150 %}...{% endif %}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <small class="text-muted">{{ review.author }}</small>
+                                        <span class="badge bg-danger">{{ review.polarity }}</span>
+                                    </div>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- All Reviews Table -->
+    <div class="col-12 mt-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="mb-0">
+                    <i class="fas fa-table me-2"></i>
+                    Detailed Review Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Review Text</th>
+                                <th>Author</th>
+                                <th>Sentiment</th>
+                                <th>Polarity</th>
+                                <th>Subjectivity</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for review in reviews %}
+                            <tr>
+                                <td style="max-width: 400px;">
+                                    {{ review.text[:200] }}{% if review.text|length > 200 %}...{% endif %}
+                                </td>
+                                <td>{{ review.author }}</td>
+                                <td>
+                                    <span class="badge bg-{{ 'success' if review.sentiment == 'Positive' else 'danger' if review.sentiment == 'Negative' else 'secondary' }}">
+                                        {{ review.sentiment }}
+                                    </span>
+                                </td>
+                                <td>{{ review.polarity }}</td>
+                                <td>{{ review.subjectivity }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
