@@ -12,5 +12,5 @@ gunicorn==21.2.0
 python-dotenv==1.0.0
 
 # Optional: For enhanced functionality
-lxml==4.9.3
+#lxml==4.9.3
 urllib3==2.0.7
