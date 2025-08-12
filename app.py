@@ -7,23 +7,15 @@ matplotlib.use('Agg')
 import matplotlib.pyplot as plt
 from sentiment import SentimentAnalyzer
 
-# Import all the new scraper classes
-from amazon_scraper import AmazonReviewScraper
-from flipkart_scraper import FlipkartReviewScraper
-from jiomart_scraper import JioMartReviewScraper
-from myntra_scraper import MyntraReviewScraper
+# Import the new, unified smart scraper
+from smart_scraper import SmartScraper
 
 app = Flask(__name__)
 app.secret_key = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
 analyzer = SentimentAnalyzer()
-# Create a dictionary to hold an instance of each scraper
-scrapers = {
-    "amazon": AmazonReviewScraper(),
-    "flipkart": FlipkartReviewScraper(),
-    "jiomart": JioMartReviewScraper(),
-    "myntra": MyntraReviewScraper()
-}
+# A single instance of our powerful scraper
+scraper = SmartScraper()
 
 @app.route('/')
 def index():
@@ -33,22 +25,18 @@ def index():
 def analyze_reviews():
     try:
         product_url = request.form.get('product_url', '').strip()
-        scraper_choice = request.form.get('scraper_choice')
+        scraper_choice = request.form.get('scraper_choice') # We still get the choice to log it
 
         if not product_url or not scraper_choice:
             flash('Please select a retailer and enter a valid URL', 'error')
             return render_template('index.html')
 
-        if scraper_choice not in scrapers:
-            flash('Invalid retailer selected.', 'error')
-            return render_template('index.html')
-
-        scraper = scrapers[scraper_choice]
-        flash(f'Using {scraper_choice.capitalize()} Scraper... Please wait.', 'info')
-        reviews = scraper.scrape_reviews(product_url)
+        flash(f'Using Smart Scraper for {scraper_choice.capitalize()}... Please wait.', 'info')
+        # The smart scraper is called for any choice
+        reviews = scraper.get_reviews(product_url)
         
         if not reviews:
-            flash('No reviews were found. The site may have blocked the request or the page structure has changed.', 'warning')
+            flash('No reviews were found. The site may be blocking requests or the page structure has changed.', 'warning')
             return render_template('index.html')
         
         analyzed_reviews = analyzer.analyze_reviews(reviews)
@@ -57,7 +45,7 @@ def analyze_reviews():
         grouped_reviews = analyzer.group_reviews_by_sentiment(analyzed_reviews)
         
         return render_template('results.html', 
-                             reviews=analyzed_reviews[:10],
+                             reviews=analyzed_reviews[:20],
                              chart=chart_base64,
                              sentiment_counts=chart_data,
                              grouped_reviews=grouped_reviews,
@@ -65,7 +53,7 @@ def analyze_reviews():
         
     except Exception as e:
         app.logger.error(f"Error in analyze_reviews: {str(e)}")
-        flash(f'An unexpected error occurred: {str(e)}', 'error')
+        flash(f'An unexpected error occurred.', 'error')
         return render_template('index.html')
 
 def create_sentiment_chart(sentiment_counts):
