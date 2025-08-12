@@ -1,5 +1,5 @@
 # Flask Web Scraper for Product Review Sentiment Analysis
-# Core dependencies as specified in the project requirements
+# Core dependencies for the project
 
 Flask==3.0.0
 beautifulsoup4==4.12.2
@@ -11,6 +11,6 @@ matplotlib==3.8.2
 gunicorn==21.2.0
 python-dotenv==1.0.0
 
-# Optional: For enhanced functionality
-#lxml==4.9.3
-urllib3==2.0.7
+# Dependencies for advanced scraping with Selenium
+selenium==4.22.0
+webdriver-manager==4.0.1
