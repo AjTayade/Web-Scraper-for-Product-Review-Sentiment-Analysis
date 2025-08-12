@@ -1,32 +1,43 @@
 {% extends "base.html" %}
 
-{% block title %}Product Review Sentiment Analyzer - Home{% endblock %}
+{% block title %}Multi-Site Review Analyzer{% endblock %}
 
 {% block content %}
 <div class="row justify-content-center">
     <div class="col-lg-8">
-        <!-- Header Section -->
         <div class="text-center mb-5">
             <h1 class="display-4 text-primary mb-3">
-                <i class="fas fa-chart-bar me-3"></i>
-                Product Review Sentiment Analyzer
+                <i class="fas fa-store me-3"></i>
+                Multi-Site Review Analyzer
             </h1>
             <p class="lead text-muted">
-                Analyze customer sentiment from product reviews using advanced NLP techniques.
-                Enter a product URL from our supported demo sites to get started.
+                Select a retailer, paste a product URL, and get instant sentiment analysis.
             </p>
         </div>
 
-        <!-- Main Form -->
         <div class="card shadow-lg">
             <div class="card-header bg-primary text-white">
                 <h3 class="card-title mb-0">
-                    <i class="fas fa-link me-2"></i>
-                    Enter Product URL
+                    <i class="fas fa-search me-2"></i>
+                    Analyze Product Reviews
                 </h3>
             </div>
             <div class="card-body p-4">
                 <form method="POST" action="{{ url_for('analyze_reviews') }}" id="analyzeForm">
+                    
+                    <div class="mb-4">
+                        <label for="scraper_choice" class="form-label fw-bold">
+                            <i class="fas fa-robot me-2"></i>Select Retailer
+                        </label>
+                        <select class="form-select form-select-lg" id="scraper_choice" name="scraper_choice" required>
+                            <option value="" disabled selected>Choose a website...</option>
+                            <option value="amazon">Amazon</option>
+                            <option value="flipkart">Flipkart</option>
+                            <option value="jiomart">JioMart</option>
+                            <option value="myntra">Myntra</option>
+                        </select>
+                    </div>
+
                     <div class="mb-4">
                         <label for="product_url" class="form-label fw-bold">
                             <i class="fas fa-globe me-2"></i>Product URL
@@ -35,102 +46,17 @@
                                class="form-control form-control-lg" 
                                id="product_url" 
                                name="product_url" 
-                               placeholder="https://quotes.toscrape.com or https://books.toscrape.com"
+                               placeholder="Paste the full product link here"
                                required>
-                        <div class="form-text">
-                            <i class="fas fa-info-circle me-1"></i>
-                            We support educational demo sites for ethical scraping practice.
-                        </div>
                     </div>
 
                     <div class="d-grid">
                         <button type="submit" class="btn btn-primary btn-lg" id="analyzeBtn">
-                            <i class="fas fa-search me-2"></i>
+                            <i class="fas fa-cogs me-2"></i>
                             Analyze Reviews
                         </button>
                     </div>
                 </form>
-            </div>
-        </div>
-
-        <!-- Supported Sites -->
-        <div class="card mt-4">
-            <div class="card-header">
-                <h5 class="mb-0">
-                    <i class="fas fa-check-circle me-2 text-success"></i>
-                    Supported Demo Sites
-                </h5>
-            </div>
-            <div class="card-body">
-                <div class="row">
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <h6 class="text-primary">
-                                <i class="fas fa-quote-left me-2"></i>
-                                Quotes to Scrape
-                            </h6>
-                            <p class="small text-muted mb-1">quotes.toscrape.com</p>
-                            <p class="small">Educational quotes with various scraping challenges</p>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mb-3">
-                            <h6 class="text-primary">
-                                <i class="fas fa-book me-2"></i>
-                                Books to Scrape
-                            </h6>
-                            <p class="small text-muted mb-1">books.toscrape.com</p>
-                            <p class="small">Fictional bookstore with product listings</p>
-                        </div>
-                    </div>
-                </div>
-                <div class="alert alert-info">
-                    <i class="fas fa-lightbulb me-2"></i>
-                    <strong>Try these example URLs:</strong><br>
-                    • <code>https://quotes.toscrape.com</code><br>
-                    • <code>https://books.toscrape.com</code><br>
-                    • <code>https://scrapethissite.com</code>
-                </div>
-            </div>
-        </div>
-
-        <!-- Features -->
-        <div class="row mt-5">
-            <div class="col-md-4 text-center mb-4">
-                <div class="feature-box">
-                    <i class="fas fa-brain fa-3x text-primary mb-3"></i>
-                    <h5>AI-Powered Analysis</h5>
-                    <p class="text-muted">Uses TextBlob for accurate sentiment classification</p>
-                </div>
-            </div>
-            <div class="col-md-4 text-center mb-4">
-                <div class="feature-box">
-                    <i class="fas fa-chart-pie fa-3x text-success mb-3"></i>
-                    <h5>Visual Analytics</h5>
-                    <p class="text-muted">Interactive charts showing sentiment distribution</p>
-                </div>
-            </div>
-            <div class="col-md-4 text-center mb-4">
-                <div class="feature-box">
-                    <i class="fas fa-shield-alt fa-3x text-warning mb-3"></i>
-                    <h5>Ethical Scraping</h5>
-                    <p class="text-muted">Respects robots.txt and follows best practices</p>
-                </div>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Loading Modal -->
-<div class="modal fade" id="loadingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-body text-center p-4">
-                <div class="spinner-border text-primary mb-3" role="status">
-                    <span class="visually-hidden">Loading...</span>
-                </div>
-                <h5>Analyzing Reviews...</h5>
-                <p class="text-muted mb-0">Please wait while we scrape and analyze the reviews.</p>
             </div>
         </div>
     </div>
